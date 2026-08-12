@@ -1,4 +1,5 @@
 import type { Builder, CropState } from '@/types/builder';
+import { builderTitle } from '@/lib/titleGenerator';
 
 export type SavedFrame = {
   id: string;
@@ -76,6 +77,21 @@ export function buildFrameUrl(id: string, builder: Builder): string {
   return `${origin}/?${params.toString()}`;
 }
 
+export function buildOgImageUrl(builder: Builder): string {
+  let origin = typeof window !== 'undefined' ? window.location.origin : 'https://hhg-delta.vercel.app';
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    origin = 'https://hhg-delta.vercel.app';
+  }
+
+  const params = new URLSearchParams();
+  if (builder.name) params.set('n', builder.name);
+  if (builder.role) params.set('r', builder.role);
+  if (builder.stack) params.set('s', builder.stack);
+  params.set('t', builderTitle(builder));
+
+  return `${origin}/api/og?${params.toString()}`;
+}
+
 export function updateOpenGraphMeta(
   title: string,
   description: string,
@@ -101,11 +117,17 @@ export function updateOpenGraphMeta(
   setMeta('meta[property="og:description"]', 'property', 'og:description', description);
   setMeta('meta[property="og:type"]', 'property', 'og:type', 'website');
   if (url) setMeta('meta[property="og:url"]', 'property', 'og:url', url);
-  if (imageUrl) setMeta('meta[property="og:image"]', 'property', 'og:image', imageUrl);
+  if (imageUrl) {
+    setMeta('meta[property="og:image"]', 'property', 'og:image', imageUrl);
+    setMeta('meta[property="og:image:secure_url"]', 'property', 'og:image:secure_url', imageUrl);
+  }
 
   // Twitter Cards
   setMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
   setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
   setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
-  if (imageUrl) setMeta('meta[name="twitter:image"]', 'name', 'twitter:image', imageUrl);
+  if (imageUrl) {
+    setMeta('meta[name="twitter:image"]', 'name', 'twitter:image', imageUrl);
+    setMeta('meta[name="twitter:image:src"]', 'name', 'twitter:image:src', imageUrl);
+  }
 }

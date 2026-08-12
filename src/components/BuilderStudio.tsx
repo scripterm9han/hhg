@@ -7,7 +7,7 @@ import { builderTitle } from '@/lib/titleGenerator';
 import { frameFileName, shareCaption } from '@/lib/filename';
 import { renderFrame, blobToDataUrl } from '@/lib/canvasGenerator';
 import { shareToXDirect, shareNativeFile } from '@/lib/sharing';
-import { saveFrameToStorage, buildFrameUrl, updateOpenGraphMeta } from '@/lib/frameStorage';
+import { saveFrameToStorage, buildFrameUrl, buildOgImageUrl, updateOpenGraphMeta } from '@/lib/frameStorage';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
@@ -146,11 +146,12 @@ export function BuilderStudio() {
           window.history.pushState(null, '', uniqueUrl);
         }
 
-        // Set OpenGraph meta for social previews
+        // Set OpenGraph meta for social previews using dynamic OG image
+        const dynamicOgUrl = buildOgImageUrl(builder);
         updateOpenGraphMeta(
           `${builder.name} | HH Goa 2026 Builder Frame`,
           `${builder.name} (${builder.role}) framed for HH Goa 2026 ⚡ ${builderTitle(builder)}. #FrameInGoa`,
-          url,
+          dynamicOgUrl,
           uniqueUrl,
         );
 

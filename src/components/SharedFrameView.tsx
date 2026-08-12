@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, Check, Copy, Download, Loader2, Sparkles } from 'lucide-react';
 import type { Builder, CropState } from '@/types/builder';
-import { getFrameFromStorage, updateOpenGraphMeta } from '@/lib/frameStorage';
+import { getFrameFromStorage, buildOgImageUrl, updateOpenGraphMeta } from '@/lib/frameStorage';
 import { shareToXDirect } from '@/lib/sharing';
 import { frameFileName, shareCaption } from '@/lib/filename';
 import { builderTitle } from '@/lib/titleGenerator';
@@ -94,8 +94,9 @@ export function SharedFrameView({
   useEffect(() => {
     const pageTitle = `${builder.name} | HH Goa 2026 Builder Frame`;
     const desc = `${builder.name} (${builder.role}) framed for HH Goa 2026 ⚡ ${title}. See you in Goa! #FrameInGoa`;
-    updateOpenGraphMeta(pageTitle, desc, dataUrl ?? undefined, currentUrl);
-  }, [builder, title, dataUrl, currentUrl]);
+    const dynamicOgUrl = buildOgImageUrl(builder);
+    updateOpenGraphMeta(pageTitle, desc, dynamicOgUrl, currentUrl);
+  }, [builder, title, currentUrl]);
 
   const handleCopyLink = () => {
     void navigator.clipboard.writeText(currentUrl).then(() => {
