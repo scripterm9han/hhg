@@ -64,7 +64,10 @@ export function getFrameFromStorage(id: string): SavedFrame | null {
 }
 
 export function buildFrameUrl(id: string, builder: Builder): string {
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  let origin = typeof window !== 'undefined' ? window.location.origin : 'https://hhg-delta.vercel.app';
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    origin = 'https://hhg-delta.vercel.app';
+  }
   const params = new URLSearchParams();
   params.set('f', id);
   if (builder.name) params.set('n', builder.name);
