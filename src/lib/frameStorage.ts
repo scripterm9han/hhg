@@ -74,8 +74,9 @@ export function buildFrameUrl(id: string, builder: Builder): string {
   if (builder.name) params.set('n', builder.name);
   if (builder.role) params.set('r', builder.role);
   if (builder.stack) params.set('s', builder.stack);
-  params.set('v', Date.now().toString(36));
-  return `${origin}/?${params.toString()}`;
+  params.set('t', builderTitle(builder));
+
+  return `${origin}/api/card?${params.toString()}`;
 }
 
 export function buildOgImageUrl(builder: Builder): string {
