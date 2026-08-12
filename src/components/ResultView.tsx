@@ -1,10 +1,19 @@
 import { Download, Loader2, RefreshCw, Share2, Sparkles } from 'lucide-react';
 
+function XIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
 export function ResultView({
   dataUrl,
   fileName,
   onDownload,
   onShare,
+  onNativeShare,
   onRestart,
   sharing,
 }: {
@@ -12,9 +21,12 @@ export function ResultView({
   fileName: string;
   onDownload: () => void;
   onShare: () => void;
+  onNativeShare?: () => void;
   onRestart: () => void;
   sharing: boolean;
 }) {
+  const canNativeShare = typeof navigator !== 'undefined' && Boolean(navigator.share);
+
   return (
     <div>
       <div className="mb-8 text-center">
@@ -52,13 +64,6 @@ export function ResultView({
 
         <div className="mt-6 grid grid-cols-1 gap-3">
           <button
-            onClick={onDownload}
-            className="btn btn-ink w-full px-6 py-4 text-[15px]"
-          >
-            <Download size={18} /> Download frame
-          </button>
-
-          <button
             onClick={onShare}
             disabled={sharing}
             className="btn btn-lime w-full px-6 py-4 text-[15px] disabled:cursor-wait disabled:opacity-60"
@@ -69,10 +74,26 @@ export function ResultView({
               </>
             ) : (
               <>
-                <Share2 size={18} /> Share to X
+                <XIcon className="h-4.5 w-4.5" /> Share directly to X.com
               </>
             )}
           </button>
+
+          <button
+            onClick={onDownload}
+            className="btn btn-ink w-full px-6 py-4 text-[15px]"
+          >
+            <Download size={18} /> Download frame
+          </button>
+
+          {canNativeShare && onNativeShare && (
+            <button
+              onClick={onNativeShare}
+              className="btn btn-ghost w-full px-6 py-3.5 text-xs tracking-wider uppercase opacity-80 hover:opacity-100"
+            >
+              <Share2 size={14} /> Open system share menu
+            </button>
+          )}
 
           <button
             onClick={onRestart}
@@ -84,10 +105,10 @@ export function ResultView({
 
         <p className="mt-6 flex items-start justify-center gap-2 text-center text-sm leading-5 text-stone">
           <Sparkles size={14} className="mt-0.5 shrink-0 text-coral" />
-          Sharing opens the native sheet on supported devices, otherwise X
-          opens with your #FrameInGoa caption ready.
+          Sharing downloads your frame and opens x.com with your #FrameInGoa caption ready to post.
         </p>
       </div>
     </div>
   );
 }
+

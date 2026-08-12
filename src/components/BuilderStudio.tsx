@@ -6,7 +6,7 @@ import { useBuilderForm } from '@/hooks/useBuilderForm';
 import { builderTitle } from '@/lib/titleGenerator';
 import { frameFileName, shareCaption } from '@/lib/filename';
 import { renderFrame, blobToDataUrl } from '@/lib/canvasGenerator';
-import { shareFrame } from '@/lib/sharing';
+import { shareFrame, shareNative } from '@/lib/sharing';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
@@ -139,6 +139,17 @@ export function BuilderStudio() {
     if (!blob) return;
     setSharing(true);
     void shareFrame(
+      blob,
+      frameFileName(builder.name),
+      shareCaption(title, builder.name),
+    ).finally(() => setSharing(false));
+  }, [builder.name, title]);
+
+  const handleNativeShare = useCallback(() => {
+    const blob = resultBlob.current;
+    if (!blob) return;
+    setSharing(true);
+    void shareNative(
       blob,
       frameFileName(builder.name),
       shareCaption(title, builder.name),
@@ -329,6 +340,7 @@ export function BuilderStudio() {
                 fileName={fileName}
                 onDownload={download}
                 onShare={share}
+                onNativeShare={handleNativeShare}
                 onRestart={restart}
                 sharing={sharing}
               />
@@ -347,7 +359,7 @@ export function BuilderStudio() {
                   <div className="mt-1 text-sm leading-5 text-stone">
                     {genFailed
                       ? 'Something went wrong while exporting. Restart and try once more.'
-                      : 'Native sharing opens on supported devices. Otherwise X opens with your caption ready.'}
+                      : 'Sharing directly opens X with your caption pre-filled and downloads your frame.'}
                   </div>
                 </div>
               </div>
