@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Download, Loader2, RefreshCw, Share2, Sparkles } from 'lucide-react';
+import { Check, Copy, Download, Loader2, RefreshCw, Share2, Sparkles } from 'lucide-react';
 
 function XIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
@@ -12,6 +12,7 @@ function XIcon({ className = 'w-4 h-4' }: { className?: string }) {
 export function ResultView({
   dataUrl,
   fileName,
+  frameUrl,
   onDownload,
   onShare,
   onNativeShare,
@@ -20,6 +21,7 @@ export function ResultView({
 }: {
   dataUrl: string | null;
   fileName: string;
+  frameUrl?: string;
   onDownload: () => void;
   onShare: () => void;
   onNativeShare?: () => void;
@@ -27,12 +29,21 @@ export function ResultView({
   sharing: boolean;
 }) {
   const [copiedNotice, setCopiedNotice] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const canNativeShare = typeof navigator !== 'undefined' && Boolean(navigator.share);
 
   const handleShareToX = () => {
     setCopiedNotice(true);
     onShare();
     setTimeout(() => setCopiedNotice(false), 7000);
+  };
+
+  const handleCopyLink = () => {
+    if (!frameUrl) return;
+    void navigator.clipboard.writeText(frameUrl).then(() => {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 3000);
+    });
   };
 
   return (
@@ -70,14 +81,37 @@ export function ResultView({
           PNG · 1080 × 1350 · {fileName}
         </div>
 
+        {frameUrl && (
+          <div className="mt-4 rounded-xl border border-ink/12 bg-cream/80 p-3.5 text-left text-xs">
+            <div className="eyebrow mb-1 text-coral">Your Unique Frame Link</div>
+            <div className="flex items-center justify-between gap-2 overflow-hidden">
+              <span className="truncate font-mono text-stone">{frameUrl}</span>
+              <button
+                onClick={handleCopyLink}
+                className="shrink-0 flex items-center gap-1 font-mono text-[11px] font-medium text-ink hover:text-coral transition-colors"
+              >
+                {copiedLink ? (
+                  <>
+                    <Check size={13} className="text-emerald-600" /> Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy size={13} /> Copy Link
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {copiedNotice && (
           <div className="mt-4 rounded-xl border border-lime/60 bg-lime/15 p-3.5 text-left text-xs leading-relaxed text-ink shadow-sm animate-fade-in">
             <div className="flex items-center gap-1.5 font-semibold text-ink">
               <Check size={15} className="text-emerald-700" />
-              Frame downloaded & copied to clipboard!
+              Frame image downloaded & copied to clipboard!
             </div>
             <p className="mt-1 text-stone">
-              Opening X... Simply press <kbd className="rounded bg-cream px-1.5 py-0.5 font-mono font-bold text-ink">Ctrl+V</kbd> (or <kbd className="rounded bg-cream px-1.5 py-0.5 font-mono font-bold text-ink">Cmd+V</kbd>) in the post box on X to attach your frame image!
+              Opening X... Simply press <kbd className="rounded bg-cream px-1.5 py-0.5 font-mono font-bold text-ink">Ctrl+V</kbd> (or <kbd className="rounded bg-cream px-1.5 py-0.5 font-mono font-bold text-ink">Cmd+V</kbd>) in the post box on X to attach your frame image. Your unique link is pre-filled in the caption!
             </p>
           </div>
         )}
@@ -94,7 +128,7 @@ export function ResultView({
               </>
             ) : (
               <>
-                <XIcon className="h-4.5 w-4.5" /> Share to X (with image & caption)
+                <XIcon className="h-4.5 w-4.5" /> Share to X (with link & image)
               </>
             )}
           </button>
@@ -125,7 +159,7 @@ export function ResultView({
 
         <p className="mt-6 flex items-start justify-center gap-2 text-center text-sm leading-5 text-stone">
           <Sparkles size={14} className="mt-0.5 shrink-0 text-coral" />
-          Clicking share downloads your frame image, copies it to clipboard, and pre-fills your #FrameInGoa caption on X.
+          Clicking share downloads your frame image, copies it to clipboard, and pre-fills your caption & unique frame link on X.
         </p>
       </div>
     </div>
