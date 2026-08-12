@@ -1,10 +1,8 @@
 export type ShareResult = 'native' | 'x' | 'cancelled' | 'failed';
 
 export function xIntentUrl(text: string, url?: string): string {
-  if (url) {
-    return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-  }
-  return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
+  const fullText = url ? `${text}\n\n${url}` : text;
+  return `https://x.com/intent/post?text=${encodeURIComponent(fullText)}`;
 }
 
 export async function copyImageToClipboard(blob: Blob): Promise<boolean> {
@@ -38,7 +36,7 @@ export async function shareToXDirect(
   // 2. Try copying image blob to clipboard for instant pasting on X
   const copied = await copyImageToClipboard(blob);
 
-  // 3. Open X post intent in new tab with text & url parameters
+  // 3. Open X post intent in new tab with full text including URL
   window.open(xIntentUrl(caption, url), '_blank', 'noopener,noreferrer');
 
   return { success: true, copied };
@@ -59,8 +57,7 @@ export async function shareNativeFile(
 
       await navigator.share({
         title: 'My HH Goa 2026 Builder Frame',
-        text: caption,
-        url: url,
+        text: url ? `${caption}\n\n${url}` : caption,
         ...(canShareFiles ? { files: [file] } : {}),
       });
       return 'native';
