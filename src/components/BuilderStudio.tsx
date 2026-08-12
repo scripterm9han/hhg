@@ -6,7 +6,7 @@ import { useBuilderForm } from '@/hooks/useBuilderForm';
 import { builderTitle } from '@/lib/titleGenerator';
 import { frameFileName, shareCaption } from '@/lib/filename';
 import { renderFrame, blobToDataUrl } from '@/lib/canvasGenerator';
-import { shareFrame, shareNative } from '@/lib/sharing';
+import { shareToXDirect, shareNativeFile } from '@/lib/sharing';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
@@ -138,7 +138,7 @@ export function BuilderStudio() {
     const blob = resultBlob.current;
     if (!blob) return;
     setSharing(true);
-    void shareFrame(
+    void shareToXDirect(
       blob,
       frameFileName(builder.name),
       shareCaption(title, builder.name),
@@ -149,7 +149,7 @@ export function BuilderStudio() {
     const blob = resultBlob.current;
     if (!blob) return;
     setSharing(true);
-    void shareNative(
+    void shareNativeFile(
       blob,
       frameFileName(builder.name),
       shareCaption(title, builder.name),

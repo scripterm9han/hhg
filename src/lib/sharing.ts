@@ -4,12 +4,25 @@ export function xIntentUrl(text: string): string {
   return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 }
 
+export async function copyImageToClipboard(blob: Blob): Promise<boolean> {
+  if (typeof navigator === 'undefined' || !navigator.clipboard || typeof ClipboardItem === 'undefined') {
+    return false;
+  }
+  try {
+    const item = new ClipboardItem({ [blob.type || 'image/png']: blob });
+    await navigator.clipboard.write([item]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function shareToXDirect(
   blob: Blob,
   fileName: string,
   caption: string,
-): Promise<'x'> {
-  // Download frame image so user has it ready to attach on X
+): Promise<{ success: boolean; copied: boolean }> {
+  // 1. Trigger image download
   const link = document.createElement('a');
   link.download = fileName;
   link.href = URL.createObjectURL(blob);
@@ -18,28 +31,21 @@ export async function shareToXDirect(
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(link.href), 4000);
 
-  // Attempt to copy image to clipboard if supported
-  if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-    try {
-      await navigator.clipboard.write([
-        new ClipboardItem({ [blob.type || 'image/png']: blob }),
-      ]);
-    } catch {
-      // Ignore clipboard error
-    }
-  }
+  // 2. Try copying image blob to clipboard for instant pasting on X
+  const copied = await copyImageToClipboard(blob);
 
-  // Directly open x.com post intent
+  // 3. Open X post intent in new tab
   window.open(xIntentUrl(caption), '_blank', 'noopener,noreferrer');
-  return 'x';
+
+  return { success: true, copied };
 }
 
-export async function shareNative(
+export async function shareNativeFile(
   blob: Blob,
   fileName: string,
   caption: string,
 ): Promise<ShareResult> {
-  if (navigator.share) {
+  if (typeof navigator !== 'undefined' && navigator.share) {
     try {
       const file = new File([blob], fileName, { type: 'image/png' });
       const canShareFiles =
@@ -59,7 +65,8 @@ export async function shareNative(
     }
   }
 
-  return shareToXDirect(blob, fileName, caption);
+  await shareToXDirect(blob, fileName, caption);
+  return 'x';
 }
 
 export async function shareFrame(
@@ -67,6 +74,5 @@ export async function shareFrame(
   fileName: string,
   caption: string,
 ): Promise<ShareResult> {
-  return shareToXDirect(blob, fileName, caption);
+  return shareNativeFile(blob, fileName, caption);
 }
-
