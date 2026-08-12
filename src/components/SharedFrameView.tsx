@@ -120,9 +120,9 @@ export function SharedFrameView({
     setCopiedNotice(true);
 
     const shareBlob = blob || new Blob([]);
-    const caption = shareCaption(title, builder.name, currentUrl);
+    const caption = shareCaption(title, builder.name);
 
-    void shareToXDirect(shareBlob, fileName, caption).finally(() => {
+    void shareToXDirect(shareBlob, fileName, caption, currentUrl).finally(() => {
       setSharing(false);
       setTimeout(() => setCopiedNotice(false), 7000);
     });

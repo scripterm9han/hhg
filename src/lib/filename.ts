@@ -13,9 +13,7 @@ export function frameFileName(name: string): string {
   return `hh-goa-2026-${slug}-frame.png`;
 }
 
-export function shareCaption(title: string, name: string, frameUrl?: string): string {
+export function shareCaption(title: string, name: string): string {
   const who = name.trim() ? ` @${sanitizeSlug(name)}` : '';
-  const link = frameUrl ? `\n\nCheck my builder frame: ${frameUrl}` : '';
-  return `Framed${who} for HH Goa 2026 ⚡ ${title}. See you in Goa. #FrameInGoa${link}`;
+  return `Framed${who} for HH Goa 2026 ⚡ ${title}. See you in Goa. #FrameInGoa`;
 }
-

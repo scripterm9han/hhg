@@ -180,10 +180,12 @@ export function BuilderStudio() {
     const blob = resultBlob.current;
     if (!blob) return;
     setSharing(true);
+    const targetUrl = frameUrl || (typeof window !== 'undefined' ? window.location.href : '');
     void shareToXDirect(
       blob,
       frameFileName(builder.name),
-      shareCaption(title, builder.name, frameUrl || (typeof window !== 'undefined' ? window.location.href : '')),
+      shareCaption(title, builder.name),
+      targetUrl,
     ).finally(() => setSharing(false));
   }, [builder.name, title, frameUrl]);
 
@@ -191,10 +193,12 @@ export function BuilderStudio() {
     const blob = resultBlob.current;
     if (!blob) return;
     setSharing(true);
+    const targetUrl = frameUrl || (typeof window !== 'undefined' ? window.location.href : '');
     void shareNativeFile(
       blob,
       frameFileName(builder.name),
-      shareCaption(title, builder.name, frameUrl || (typeof window !== 'undefined' ? window.location.href : '')),
+      shareCaption(title, builder.name),
+      targetUrl,
     ).finally(() => setSharing(false));
   }, [builder.name, title, frameUrl]);
 

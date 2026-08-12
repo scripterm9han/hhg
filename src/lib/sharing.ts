@@ -1,6 +1,9 @@
 export type ShareResult = 'native' | 'x' | 'cancelled' | 'failed';
 
-export function xIntentUrl(text: string): string {
+export function xIntentUrl(text: string, url?: string): string {
+  if (url) {
+    return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  }
   return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 }
 
@@ -21,6 +24,7 @@ export async function shareToXDirect(
   blob: Blob,
   fileName: string,
   caption: string,
+  url?: string,
 ): Promise<{ success: boolean; copied: boolean }> {
   // 1. Trigger image download
   const link = document.createElement('a');
@@ -34,8 +38,8 @@ export async function shareToXDirect(
   // 2. Try copying image blob to clipboard for instant pasting on X
   const copied = await copyImageToClipboard(blob);
 
-  // 3. Open X post intent in new tab
-  window.open(xIntentUrl(caption), '_blank', 'noopener,noreferrer');
+  // 3. Open X post intent in new tab with text & url parameters
+  window.open(xIntentUrl(caption, url), '_blank', 'noopener,noreferrer');
 
   return { success: true, copied };
 }
@@ -44,6 +48,7 @@ export async function shareNativeFile(
   blob: Blob,
   fileName: string,
   caption: string,
+  url?: string,
 ): Promise<ShareResult> {
   if (typeof navigator !== 'undefined' && navigator.share) {
     try {
@@ -55,6 +60,7 @@ export async function shareNativeFile(
       await navigator.share({
         title: 'My HH Goa 2026 Builder Frame',
         text: caption,
+        url: url,
         ...(canShareFiles ? { files: [file] } : {}),
       });
       return 'native';
@@ -65,7 +71,7 @@ export async function shareNativeFile(
     }
   }
 
-  await shareToXDirect(blob, fileName, caption);
+  await shareToXDirect(blob, fileName, caption, url);
   return 'x';
 }
 
@@ -73,6 +79,7 @@ export async function shareFrame(
   blob: Blob,
   fileName: string,
   caption: string,
+  url?: string,
 ): Promise<ShareResult> {
-  return shareNativeFile(blob, fileName, caption);
+  return shareNativeFile(blob, fileName, caption, url);
 }
